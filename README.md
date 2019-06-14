@@ -13,4 +13,8 @@ Now, I'm actually looking to improve the bot as much as I can, especially by add
 
 [Invite Snaky to your server](https://discordapp.com/oauth2/authorize?client_id=455371839519064072&scope=bot&permissions=51200)
 
+# Should I add Snaky to my server ?
+
+No.
+
 Enjoy !
