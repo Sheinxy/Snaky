@@ -63,8 +63,6 @@ async def sendEmote(emote, message, arguments):
 
     await message.channel.send(embed=discord.Embed.from_dict(toSendEmote))
 
-    return ("\nEmote sent properly! :3")
-
 
 async def replaceMeta(dic, metaValues):
     for field in dic:

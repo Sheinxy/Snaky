@@ -39,13 +39,13 @@ async def help(message, arguments):
 
     await message.channel.send(embed=discord.Embed.from_dict(em))
 
-    return ("\nHelp displayed properly! :3c")
-
 
 async def clear(message, arguments):
     """I can help clearing your junk!
     Just tell me how many messages I have to delete and I will do it! UwU
     """
+    if not message.channel.permissions_for(message.author).manage_messages:
+        await message.channel.send("HEY! YOU CAN'T DO THIS YOU FEOJA >:[")
     try:
         toClear = int(arguments)
         await message.delete()
@@ -56,14 +56,8 @@ async def clear(message, arguments):
 
         response = await message.channel.send(message.author.mention + " I have cleared " + arguments + " message(s) (proud of me? :3c)")
         await response.delete(delay=3)
-
-        return ("\nI have cleared " + arguments + " messages" +
-                "\nOn channel: " + message.channel.name +
-                "\nOn server: " + message.guild.name)
-    except Exception as e:
+    except:
         await message.channel.send("I'm very sorry, but I wasn't able to clear anything ;W;")
-
-        return ("\nI wasn't able to clear anything (%s) ;w;" % e)
 
 
 async def say(message, arguments):
@@ -71,9 +65,6 @@ async def say(message, arguments):
     Like a small parrot! (But I'm a Snake, so please, don't say that I'm a parrot ;W;)
     """
     await message.channel.send(arguments)
-
-    return ("\nI answered: " + arguments + "\nOn channel: " + message.channel.name +
-            "\nOn server: " + message.guild.name)
 
 
 async def ping(message, arguments):
@@ -86,10 +77,6 @@ async def ping(message, arguments):
     timeDifference = currentTime.__sub__(messageCreation)
     await message.channel.send("Pong (" + str(timeDifference.microseconds / 1000) + "ms approximately)")
 
-    return ("\nI received the message at " + str(currentTime) +
-            "\nThere are " + str(timeDifference.microseconds / 1000)
-            + "ms between its creation and reception")
-
 
 async def rule34(message, arguments):
     """Ohh, you want to be nasty uh? >w>
@@ -97,8 +84,6 @@ async def rule34(message, arguments):
     """
     if not message.channel.nsfw:
         await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
-
-        return ("\nThis channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
 
     Rule34 = r34.Rule34(asyncio.get_event_loop())
     urls = await Rule34.getImageURLS(arguments)
@@ -121,10 +106,6 @@ async def rule34(message, arguments):
     }
 
     await message.channel.send(embed=discord.Embed.from_dict(em))
-
-    return ("\nThe search query is: " + arguments +
-            "\nI have " + str(len(urls)) + " images available" +
-            "\nI've selected: " + random.choice(urls))
 
 
 async def emotesHelp(message, arguments):
@@ -162,15 +143,12 @@ async def emotesHelp(message, arguments):
 
     await message.channel.send(embed=discord.Embed.from_dict(em))
 
-    return ("\nEmotes list displayed properly! :3c")
-
 
 async def addEmote(message, arguments):
     """Usage is:
     -addEmote name {"title": "Something", "description": "Something", "image": {"url": "Something"}}
     Meta values [$Name(Arguments)] are: Author, Gif, Arguments
     """
-
     server = message.guild if message.guild != None else message.author
     name = arguments.split(' ')[0]
     emote = json.loads(arguments.replace(name + ' ', ''))
@@ -179,19 +157,14 @@ async def addEmote(message, arguments):
 
     await message.channel.send("I've added the emote " + name + " to this server! :3")
 
-    return ("\nI've added the emote " + name + " to this server! :3")
-
 
 async def delEmote(message, arguments):
     """Are you unsatisfied by an emote?
     I can delete it for you! :3
     """
-
     await emotes.delEmote((message.guild if message.guild != None else message.author), arguments)
 
     await message.channel.send("I've deleted the emote " + arguments + " from this server! :3")
-
-    return ("\nI've deleted the emote " + arguments + " from this server! :3")
 
 
 commands = {
