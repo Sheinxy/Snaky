@@ -24,25 +24,16 @@ async def on_ready():
 async def on_message(message):
     try:
         server = message.guild if message.guild != None else message.author
-        channel = message.channel if message.guild != None else message.author
-        author = message.author
 
-        if message.content.startswith(prefix) or message.content.startswith('%s ' % Client.user.mention):
+        if message.content.startswith(prefix) or message.content.startswith(Client.user.mention):
             activity = discord.Game(random.choice(["on %s servers" % len(Client.guilds),
                                                    "type - or mention me with a command!",
                                                    "I'm a robot snake ^w^"]))
             await Client.change_presence(activity=activity, status=discord.Status.idle)
 
-            setServerLog = await setServer(server)
-            await writeLog("I've received a message from: " + str(author) +
-                           "\nOn server: " + server.name + " of ID: " + str(server.id) +
-                           "\nOn channel: " + channel.name + " of ID: " + str(channel.id) +
-                           "\nMessage's content is: " + message.content +
-                           "\n" + setServerLog)
+            await setServer(server)
 
-            processCommandLog = await processCommand(message)
-
-            await writeLog(processCommandLog)
+            await processCommand(message)
     except Exception as e:
         await writeLog("\nSomething went wrong (%s) ;W;" % e)
 
@@ -59,33 +50,22 @@ async def processCommand(message):
     """
     server = message.guild if message.guild != None else message.author
     usedPrefix = prefix
-    if message.content.startswith('<@%s> ' % Client.user.id):
-        usedPrefix = ('<@%s> ' % Client.user.id)
+    if message.content.startswith(Client.user.mention):
+        usedPrefix = (Client.user.mention + ' ')
 
     command = message.content.replace(usedPrefix, "").split(' ')[0]
-    arguments = message.content.replace(usedPrefix + command + ' ', ''
-                                        ).replace(usedPrefix + command, '')
+    arguments = message.content.replace(usedPrefix, "").replace(command, "")
     serverEmotes = await emotes.loadEmotes(server)
     userEmotes = {}
     if os.path.isfile("Servers/" + str(message.author.id) + "_usr/emotes.json"):
         userEmotes = await emotes.loadEmotes(message.author)
 
-    log = ("The command is: " + command +
-           "\nThe arguments are: " + arguments)
-
     if commands.commands.__contains__(command):
-        log += "\nI'm going to execute this command with these arguments\n"
-        log += await commands.commands[command](message, arguments)
+        await commands.commands[command](message, arguments)
     elif serverEmotes.__contains__(command):
-        log += "\nThis command is an emote"
-        log += await emotes.sendEmote(serverEmotes[command], message, arguments)
+        await emotes.sendEmote(serverEmotes[command], message, arguments)
     elif userEmotes.__contains__(command):
-        log += "\nThis command is an emote"
-        log += await emotes.sendEmote(userEmotes[command], message, arguments)
-    else:
-        log += "\nUnknown command"
-
-    return log
+        await emotes.sendEmote(userEmotes[command], message, arguments)
 
 
 async def writeLog(log):
@@ -99,32 +79,19 @@ async def setServer(server):
     If not, it will automatically do it .
     This returns the log, describing what happened.
     """
-
     serverFolder = "Servers/" + str(server.id) + ("_usr" if (
         type(server) is discord.User or type(server) is discord.Member) else '') + "/"
-    log = await setServerFolder(serverFolder)
-    log += await setServerEmotes(serverFolder)
-
-    return log
+    await setServerFolder(serverFolder)
+    await setServerEmotes(serverFolder)
 
 
 async def setServerFolder(serverFolder):
-    log = "\nI'm checking if server is known..."
     if not os.path.isdir(serverFolder):
-        log += "\nServer is unknown from me"
-        log += "\nI'm creating directory for it"
         os.makedirs(serverFolder)
-    else:
-        log += "\nServer is known from me, I don't need to create anything"
-
-    return log
 
 
 async def setServerEmotes(serverFolder):
-    log = "\nI'm checking if server is correctly set..."
     if not os.path.isfile(serverFolder + "emotes.json"):
-        log += "\nServer is unknown from me"
-        log += "\nI'm creating directory for it"
         baseEmotes = {
             "sleep": {
                 "title": "$Author(name) went to sleep",
@@ -172,9 +139,5 @@ async def setServerEmotes(serverFolder):
         }
         with open(serverFolder + "emotes.json", "w") as emoteFile:
             json.dump(baseEmotes, emoteFile, indent=4)
-    else:
-        log += "\nServer is correctly set, I don't need to create anything"
-
-    return log
 
 Client.run(token)
