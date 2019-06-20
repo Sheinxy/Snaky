@@ -46,6 +46,7 @@ async def clear(message, arguments):
     """
     if not message.channel.permissions_for(message.author).manage_messages:
         await message.channel.send("HEY! YOU CAN'T DO THIS YOU FEOJA >:[")
+        return
     try:
         toClear = int(arguments)
         await message.delete()
