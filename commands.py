@@ -85,6 +85,7 @@ async def rule34(message, arguments):
     """
     if not message.channel.nsfw:
         await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
+		return
 
     Rule34 = r34.Rule34(asyncio.get_event_loop())
     urls = await Rule34.getImageURLS(arguments)
