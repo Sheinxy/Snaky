@@ -55,6 +55,8 @@ async def processCommand(message):
 
     command = message.content.replace(usedPrefix, "").split(' ')[0]
     arguments = message.content.replace(usedPrefix, "").replace(command, "")
+    if len(arguments) > 0:
+        arguments =  arguments if arguments[0] != ' ' else arguments[1:]
     serverEmotes = await emotes.loadEmotes(server)
     userEmotes = {}
     if os.path.isfile("Servers/" + str(message.author.id) + "_usr/emotes.json"):
