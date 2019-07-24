@@ -53,8 +53,8 @@ async def processCommand(message):
     if message.content.startswith(Client.user.mention):
         usedPrefix = (Client.user.mention + ' ')
 
-    command = message.content.replace(usedPrefix, "").split(' ')[0]
-    arguments = message.content.replace(usedPrefix, "").replace(command, "")
+    command = message.content[len(usedPrefix):].split(' ')[0]
+    arguments = message.content[len(usedPrefix):].replace(command, "")
     if len(arguments) > 0:
         arguments =  arguments if arguments[0] != ' ' else arguments[1:]
     serverEmotes = await emotes.loadEmotes(server)
