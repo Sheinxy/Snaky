@@ -43,7 +43,8 @@ async def sendEmote(emote, message, arguments):
     metaValues = {
         "Author": message.author,
         "Arguments": arguments.split(' '),
-        "Gif": getGif
+        "Gif": getGif,
+        "Mentions": message.mentions
     }
 
     toSendEmote = copy.deepcopy(emote)
@@ -55,7 +56,7 @@ async def sendEmote(emote, message, arguments):
         "icon_url": str(message.author.avatar_url_as(static_format='png'))
     }
 
-    if ("$Gif(") in emote["image"]["url"]:
+    if ("image") in emote and ("$Gif(") in emote["image"]["url"]:
         toSendEmote["footer"] = {
             "text": "Powered by https://tenor.com",
             "icon_url": "https://tenor.com/assets/img/favicon/favicon-16x16.png"
@@ -65,37 +66,65 @@ async def sendEmote(emote, message, arguments):
 
 
 async def replaceMeta(dic, metaValues):
+    async def getMetaResult(meta, metaArgument):
+        if callable(meta):
+            result = await meta(metaArgument)
+        elif type(meta) is list:
+            if metaArgument == "all":
+                separator = " "
+                result = separator.join(map(str, meta))
+            else:
+                result = meta[int(metaArgument)]
+        else:
+            result = getattr(meta, metaArgument)
+
+        return result
+
+    async def getMetaArgument(cursor, expression):
+        metaArgument = ""
+        cursor += 1
+        while fieldValue[cursor] != ")":
+            metaArgument += fieldValue[cursor]
+            cursor += 1
+        expression += metaArgument + fieldValue[cursor]
+
+        return [metaArgument, cursor, expression]
+
     for field in dic:
         if type(dic[field]) is dict:
             await replaceMeta(dic[field], metaValues)
         else:
-            fieldValue = dic[field].replace(
-                '\\(', '&bo;').replace('\\)', '&bc;').replace("\\$", "&ds;")
-            for metaValueName in metaValues:
-                metaValue = metaValues[metaValueName]
-                pattern = ("\\$" + metaValueName + "\\(([^()]*)\\)")
-                metaArgs = re.findall(pattern, fieldValue)
-
-                for metaArg in metaArgs:
-                    result = ""
-                    metaArg = metaArg.replace('&bo;', '(').replace(
-                        '&bc;', ')').replace("&ds;", "$")
-                    if callable(metaValue):
-                        result = str(await metaValue(metaArg))
-                    elif type(metaValue) is list:
-                        if metaArg == "all":
-                            separator = " "
-                            result = separator.join(metaValue)
-                        else:
-                            result = str(metaValue[int(metaArg)])
-                    else:
-                        result = str(getattr(metaValue, metaArg))
-                    fieldValue = fieldValue.replace(
-                        "$" + metaValueName + "(" + metaArg + ")", result)
-
-            fieldValue = fieldValue.replace(
-                '&bo;', '(').replace('&bc;', ')').replace("&ds;", "$")
-            dic[field] = fieldValue
+            cursor = 0
+            fieldValue = dic[field]
+            while cursor < len(fieldValue):
+                if fieldValue[cursor] == "$":
+                    expression = fieldValue[cursor]
+                    metaValue = ""
+                    cursor += 1
+                    while fieldValue[cursor] != "(":
+                        metaValue += fieldValue[cursor]
+                        cursor += 1
+                    expression += metaValue + fieldValue[cursor]    
+                    metaArgumentRes = await getMetaArgument(cursor, expression)
+                    cursor = metaArgumentRes[1]
+                    expression = metaArgumentRes[2]
+                    if metaValue in metaValues:
+                        meta = metaValues[metaValue]
+                        result = await getMetaResult(meta, metaArgumentRes[0])
+                        cursor += 1
+                        while cursor < len(fieldValue) and fieldValue[cursor] == "(":
+                            expression += fieldValue[cursor]
+                            metaArgumentRes = await getMetaArgument(cursor, expression)
+                            cursor = metaArgumentRes[1]
+                            expression = metaArgumentRes[2]
+                            result = await getMetaResult(result, metaArgumentRes[0])
+                            cursor += 1
+                            
+                        fieldValue = fieldValue.replace(expression, str(result))
+                        dic[field] = fieldValue
+                        cursor = len(str(result))
+                else :
+                    cursor += 1
 
 
 async def getGif(searchQuery):

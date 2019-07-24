@@ -23,8 +23,8 @@ async def help(message, arguments):
             "icon_url": str(message.author.avatar_url_as(static_format='png'))
         },
         "footer": {
-            "text": "Bot creates by https://twitter.com/Sheinxy",
-            "icon_url": "https://cdn.discordapp.com/attachments/499994899404554261/588756332765511681/A_Bit_Biceon_More_No_Sign.png"
+            "text": "Bot created by https://twitter.com/Sheinxy",
+            "icon_url": "https://www.gravatar.com/avatar/88a7ac03b956d2e189af6b3fa6dc6ebe?s=150"
         },
         "color": 9276813,
         "fields": []
@@ -85,7 +85,7 @@ async def rule34(message, arguments):
     """
     if not message.channel.nsfw:
         await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
-		return
+        return
 
     Rule34 = r34.Rule34(asyncio.get_event_loop())
     urls = await Rule34.getImageURLS(arguments)
@@ -149,7 +149,7 @@ async def emotesHelp(message, arguments):
 async def addEmote(message, arguments):
     """Usage is:
     -addEmote name {"title": "Something", "description": "Something", "image": {"url": "Something"}}
-    Meta values [$Name(Arguments)] are: Author, Gif, Arguments
+    Meta values [$Name(Arguments)] are: Author, Gif, Arguments, Mentions
     """
     server = message.guild if message.guild != None else message.author
     name = arguments.split(' ')[0]
