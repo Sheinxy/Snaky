@@ -200,6 +200,9 @@ async def addQuote(message, arguments):
     """
     scope = arguments.split(' ')[0]
     quote = arguments[len(scope + ' '):]
+    if (quote == ""):
+        await message.channel.send("Pwease send a quote TwT")
+        return
     quoteFilePath = ""
     server = message.guild if message.guild != None else message.author
     if scope == "server":
