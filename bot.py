@@ -54,7 +54,7 @@ async def processCommand(message):
         usedPrefix = (Client.user.mention + ' ')
 
     command = message.content[len(usedPrefix):].split(' ')[0]
-    arguments = message.content[len(usedPrefix):].replace(command, "")
+    arguments = message.content[len(usedPrefix + command):]
     if len(arguments) > 0:
         arguments =  arguments if arguments[0] != ' ' else arguments[1:]
     serverEmotes = await emotes.loadEmotes(server)
@@ -85,6 +85,7 @@ async def setServer(server):
         type(server) is discord.User or type(server) is discord.Member) else '') + "/"
     await setServerFolder(serverFolder)
     await setServerEmotes(serverFolder)
+    await setServerQuotes(serverFolder)
 
 
 async def setServerFolder(serverFolder):
@@ -141,5 +142,10 @@ async def setServerEmotes(serverFolder):
         }
         with open(serverFolder + "emotes.json", "w") as emoteFile:
             json.dump(baseEmotes, emoteFile, indent=4)
+
+async def setServerQuotes(serverFolder):
+    if not os.path.isfile(serverFolder + "quotes.json"):
+        with open(serverFolder + "quotes.json", "w") as quotesFile:
+            json.dump([], quotesFile, indent=4)
 
 Client.run(token)

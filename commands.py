@@ -153,7 +153,7 @@ async def addEmote(message, arguments):
     """
     server = message.guild if message.guild != None else message.author
     name = arguments.split(' ')[0]
-    emote = json.loads(arguments.replace(name + ' ', ''))
+    emote = json.loads(arguments[len(name + ' '):])
 
     await emotes.addEmote(server, name, emote)
 
@@ -168,6 +168,61 @@ async def delEmote(message, arguments):
 
     await message.channel.send("I've deleted the emote " + arguments + " from this server! :3")
 
+async def quote(message, arguments):
+    """Let me give you a quote that one of you added here!
+    Use -quote server for a server quote, -quote public for a public one
+    """
+    scope = arguments.split(' ')[0]
+    server = message.guild if message.guild != None else message.author
+    if scope == "server":
+        quoteFilePath = "Servers/" + str(server.id) + ("_usr" if (type(
+            server) is discord.User or type(server) is discord.Member) else '') + "/quotes.json"
+    elif scope == "public":
+        quoteFilePath = "Servers/public/quotes.json"
+    else:
+        await message.channel.send("Sowwy, but this scope is invalid TwT (Please, precise server or public)")
+        return
+
+    quotes = []
+    
+    with open(quoteFilePath) as quoteFile:
+        quotes = json.load(quoteFile)
+
+    if (len(quotes) == 0):
+        await message.channel.send("Sowwy, but there are no quotes here ;w; (Please add some TwT)")
+        return
+
+    await message.channel.send(random.choice(quotes))
+
+async def addQuote(message, arguments):
+    """Wanna add a quote to my quote list? :3
+    use -addQuote server to add a server quote, -quote public to add a public one
+    """
+    scope = arguments.split(' ')[0]
+    quote = arguments[len(scope + ' '):]
+    quoteFilePath = ""
+    server = message.guild if message.guild != None else message.author
+    if scope == "server":
+        quoteFilePath = "Servers/" + str(server.id) + ("_usr" if (type(
+            server) is discord.User or type(server) is discord.Member) else '') + "/quotes.json"
+    elif scope == "public":
+        quoteFilePath = "Servers/public/quotes.json"
+    else:
+        await message.channel.send("Sowwy, but this scope is invalid TwT (Please, precise server or public)")
+        return
+
+    quotes = []
+    
+    with open(quoteFilePath) as quoteFile:
+        quotes = json.load(quoteFile)
+
+    quotes.append(quote)
+
+    with open(quoteFilePath, 'w') as quoteFile:
+        json.dump(quotes, quoteFile, indent=4)
+
+    await message.channel.send("Added this quote to the %s ! :3c" % scope)
+
 
 commands = {
     'help': help,
@@ -177,5 +232,7 @@ commands = {
     'rule34': rule34,
     'emotes': emotesHelp,
     'addEmote': addEmote,
-    'delEmote': delEmote
+    'delEmote': delEmote,
+    'quote': quote,
+    'addQuote': addQuote
 }
