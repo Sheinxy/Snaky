@@ -1,5 +1,5 @@
 # Snaky
-Small Emote Discord Snake Bot (Amateur Project)
+Small Discord Emote Snake Bot (Amateur Project)
 
 # A little history of Snaky
 >Snaky was create in november 2017 as a discord bot for my friends'server.
