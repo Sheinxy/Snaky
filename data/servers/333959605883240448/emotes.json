@@ -1,0 +1,92 @@
+{
+    "sleep": {
+        "title": "$Author(name) went to sleep",
+        "description": "Good night $Author(mention)",
+        "image": {
+            "url": "$Gif(anime sleep)"
+        }
+    },
+    "kiss": {
+        "description": "$Author(mention) kissed $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime kiss)"
+        }
+    },
+    "hug": {
+        "description": "$Author(mention) hugged $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime hug)"
+        }
+    },
+    "eat": {
+        "description": "$Author(mention) is going to eat $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime eat)"
+        }
+    },
+    "cry": {
+        "description": "$Author(mention) is crying",
+        "image": {
+            "url": "$Gif(anime cry)"
+        }
+    },
+    "nuke": {
+        "description": "$Author(mention) nuked $Arguments(all) :D",
+        "image": {
+            "url": "https://cdn.discordapp.com/attachments/333959605883240448/481588083226050571/telechargement.gif"
+        }
+    },
+    "shoot": {
+        "description": "$Author(mention) shot $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime shoot fire)"
+        }
+    },
+    "wink": {
+        "title": "$Author(name) ordered Connor to at $Arguments(all)",
+        "description": "Connor winked at $Arguments(all)",
+        "image": {
+            "url": "https://cdn.discordapp.com/attachments/333959605883240448/459325586704302080/tumblr_p9yw9of3m31qiml8vo1_500.gif"
+        }
+    },
+    "getIcon": {
+        "image": {
+            "url": "$Mentions(0)(avatar_url)"
+        }
+    },
+    "pat": {
+        "description": "$Author(mention) patted $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime pat)"
+        }
+    },
+    "die": {
+        "description": "$Author(mention) died",
+        "image": {
+            "url": "$Gif(dies)"
+        }
+    },
+    "gtfts": {
+        "description": "GO THE FUCK TO SLEEP $Arguments(all)",
+        "image": {
+            "url": "https://media1.tenor.com/images/a54f734baa32b4a2d58f1cd468077c56/tenor.gif?itemid=13289799"
+        }
+    },
+    "theo": {
+        "title": "Behold the Theo dance",
+        "image": {
+            "url": "https://cdn.discordapp.com/attachments/333959605883240448/412321298027642880/theo.gif"
+        }
+    },
+    "eevee": {
+        "image": {
+            "url": "https://cdn.discordapp.com/attachments/455387472730259459/601164186613186580/DetailedVengefulDormouse.gif"
+        }
+    },
+    "TG": {
+        "description": "TA GUEULE $Arguments(all)",
+        "image": {
+            "url": "https://cdn.discordapp.com/attachments/333959605883240448/605896263426113546/unknown.png"
+        }
+    }
+}
