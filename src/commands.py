@@ -213,6 +213,10 @@ async def addQuote(commandData):
     await message.channel.send("Added this quote to the %s ! :3c" % scope)
 
 async def prefix(commandData):
+    """
+        You don't remember what prefixes are available here ?
+        Don't worry, I will reming you ! ^w^
+    """
     message = commandData["message"]
     serverFolder = commandData["serverFolder"]
 
@@ -240,6 +244,9 @@ async def prefix(commandData):
 
 
 async def addPrefix(commandData):
+    """
+        Do you want to add a new prefix for this server ? ^w^
+    """
     message = commandData["message"]
     arguments = commandData["arguments"]
     serverFolder = commandData["serverFolder"]
@@ -249,6 +256,9 @@ async def addPrefix(commandData):
     await message.channel.send("Added the prefix %s to the server ! ^w^" % arguments)
 
 async def delPrefix(commandData):
+    """
+        Do you want to remove a new prefix for this server ? ^w^
+    """
     message = commandData["message"]
     arguments = commandData["arguments"]
     serverFolder = commandData["serverFolder"]
