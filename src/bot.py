@@ -12,7 +12,7 @@ prefix = '-'
 @client.event
 async def on_ready():
     activity = discord.Game(random.choice(["on %s servers" % len(client.guilds),
-                                           "type - or mention me with a command!",
+                                           "type - with a command!",
                                            "I'm a robot snake ^w^"]))
     await client.change_presence(activity=activity, status=discord.Status.idle)
     print("Logged as %s\nId is: %s" % (client.user.name, client.user.id))

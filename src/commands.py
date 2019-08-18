@@ -213,14 +213,16 @@ async def addQuote(commandData):
     await message.channel.send("Added this quote to the %s ! :3c" % scope)
 
 async def prefix(commandData):
-    """
-        You don't remember what prefixes are available here ?
+    """You don't remember what prefixes are available here ?
         Don't worry, I will reming you ! ^w^
     """
     message = commandData["message"]
     serverFolder = commandData["serverFolder"]
 
     prefixes = database.get_data("%s/prefix.json" % serverFolder, [])
+    if len(prefixes) == 0:
+        await message.channel.send("Am sowwy, but there are no prefixes here TwT")
+        return
     prefixes.sort(key=len, reverse=True)
 
     em = {
@@ -244,8 +246,7 @@ async def prefix(commandData):
 
 
 async def addPrefix(commandData):
-    """
-        Do you want to add a new prefix for this server ? ^w^
+    """Do you want to add a new prefix for this server ? ^w^
     """
     message = commandData["message"]
     arguments = commandData["arguments"]
@@ -256,8 +257,7 @@ async def addPrefix(commandData):
     await message.channel.send("Added the prefix %s to the server ! ^w^" % arguments)
 
 async def delPrefix(commandData):
-    """
-        Do you want to remove a new prefix for this server ? ^w^
+    """Do you want to remove a new prefix for this server ? ^w^
     """
     message = commandData["message"]
     arguments = commandData["arguments"]

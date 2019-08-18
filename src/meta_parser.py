@@ -49,11 +49,13 @@ class MetaParser:
                 result = str(self.parseStatement(metaStatement))
                 cursor = begin + len(result) - 1
                 item = item.replace(metaStatement, result)
+                begin = -1
             previous = current
             cursor += 1
         return item
 
-    def parseStatement(self, statement, cursor=1):
+    def parseStatement(self, statement):
+        cursor=1
         previous = '$'
         while statement[cursor] != "(" or previous == '\\':
             previous = statement[cursor]
@@ -72,6 +74,7 @@ class MetaParser:
             cursor += 2
         meta = self.metaTags[tag]
         for arg in args:
+            arg = arg.replace("\\(", "(").replace("\\)", ")")
             meta = self.parseMeta(meta, arg)
 
         return meta

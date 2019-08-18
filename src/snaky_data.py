@@ -21,12 +21,12 @@ class SnakyData:
             This will not create any file.
         """
         totalPath = self.root + \
-            path if path[0] == '/' else self.root + '/' + path
+            path if path == "" or path[0] == '/' else self.root + '/' + path
         if not os.path.isdir(os.path.dirname(totalPath)):
             os.makedirs(os.path.dirname(totalPath))
 
 
-    def get_data(self, path="/", ifEmpty={}):
+    def get_data(self, path="", ifEmpty={}):
         """
             Retrieves data from a .json file.
             The path is added to the root.
@@ -36,7 +36,7 @@ class SnakyData:
         """
         self.create_data(path=path)
         totalPath = self.root + \
-            path if path[0] == '/' or path == "" else self.root + '/' + path
+            path if path == "" or path[0] == '/'  else self.root + '/' + path
         if not os.path.exists(totalPath):
             with open(totalPath, 'w') as dataFile:
                 json.dump(ifEmpty, dataFile, indent=4)
@@ -44,7 +44,7 @@ class SnakyData:
             data = json.load(dataFile)
         return data
 
-    def set_data(self, key, value, path="/"):
+    def set_data(self, key, value, path=""):
         """
             Sets data to a .json file.
             The key must be a string.
@@ -54,7 +54,7 @@ class SnakyData:
         """
         self.create_data(path=path)
         totalPath = self.root + \
-            path if path[0] == '/' or path == "" else self.root + '/' + path
+            path if path == "" or path[0] == '/'  else self.root + '/' + path
 
         data = self.get_data(path)
         data[key] = value
@@ -62,7 +62,7 @@ class SnakyData:
         with open(totalPath, 'w') as dataFile:
             json.dump(data, dataFile, indent=4)
 
-    def del_data(self, key, path="/"):
+    def del_data(self, key, path=""):
         """
             Removes data to a .json file.
             The key must be a string.
@@ -71,7 +71,7 @@ class SnakyData:
         """
         self.create_data(path=path)
         totalPath = self.root + \
-            path if path[0] == '/' or path == "" else self.root + '/' + path
+            path if path == "" or path[0] == '/'  else self.root + '/' + path
 
         data = self.get_data(path)
         del data[key]
@@ -79,7 +79,7 @@ class SnakyData:
         with open(totalPath, 'w') as dataFile:
             json.dump(data, dataFile, indent=4)
 
-    def push_data(self, value, path="/"):
+    def push_data(self, value, path=""):
         """
             Appends data to a .json file.
             Use this when the .json only contains an array.
@@ -89,7 +89,7 @@ class SnakyData:
         """
         self.create_data(path=path)
         totalPath = self.root + \
-            path if path[0] == '/' or path == "" else self.root + '/' + path
+            path if path == "" or path[0] == '/'  else self.root + '/' + path
 
         data = self.get_data(path, [])
         data.append(value)
@@ -97,7 +97,7 @@ class SnakyData:
         with open(totalPath, 'w') as dataFile:
             json.dump(data, dataFile, indent=4)
 
-    def rem_data(self, value, once=True, path="/"):
+    def rem_data(self, value, once=True, path=""):
         """
             Removes value from a .json file.
             Use this when the .json only contains an array.
@@ -109,7 +109,7 @@ class SnakyData:
         """
         self.create_data(path=path)
         totalPath = self.root + \
-            path if path[0] == '/' or path == "" else self.root + '/' + path
+            path if path == "" or path[0] == '/'  else self.root + '/' + path
 
         data = self.get_data(path, [])
 
@@ -135,6 +135,6 @@ class SnakyData:
                 SnakyData("data").get_ref("subdata1") is the same as SnakyData("data/subdata1")
         """
         totalPath = self.root + \
-            path if path[0] == '/' or path == "" else self.root + '/' + path
+            path if path == "" or path[0] == '/'  else self.root + '/' + path
 
         return SnakyData(totalPath)
