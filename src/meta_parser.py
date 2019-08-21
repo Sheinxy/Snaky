@@ -55,7 +55,7 @@ class MetaParser:
         return item
 
     def parseStatement(self, statement):
-        cursor=1
+        cursor = 1
         previous = '$'
         while statement[cursor] != "(" or previous == '\\':
             previous = statement[cursor]
@@ -93,24 +93,24 @@ class MetaParser:
 
         return result
 
+    @staticmethod
+    def get_gif(searchQuery):
+        """
+            Returns a gif from tenor with a given search query.
+            This is the function normally used when using the Gif meta tag.
+        """
+        gifUrl = "https://media1.tenor.com/images/4cf708c3935a0755bbe1e9d52ef8378d/tenor.gif?itemid=13009757"
+        apiKey = os.getenv("API_TENOR")
+        limit = 50
 
-def get_gif(searchQuery):
-    """
-        Returns a gif from tenor with a given search query.
-        This is the function normally used when using the Gif meta tag.
-    """
-    gifUrl = "https://media1.tenor.com/images/4cf708c3935a0755bbe1e9d52ef8378d/tenor.gif?itemid=13009757"
-    apiKey = os.getenv("API_TENOR")
-    limit = 50
+        requestGifs = urllib.request.urlopen(
+            "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" %
+            (searchQuery.replace(' ', '%20'), apiKey, limit))
 
-    requestGifs = urllib.request.urlopen(
-        "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" %
-        (searchQuery.replace(' ', '%20'), apiKey, limit))
+        requestGifsContent = json.loads(requestGifs.read())
 
-    requestGifsContent = json.loads(requestGifs.read())
+        if requestGifs.code == 200:
+            gifUrl = random.choice(requestGifsContent["results"])[
+                "media"][0]["gif"]["url"]
 
-    if requestGifs.code == 200:
-        gifUrl = random.choice(requestGifsContent["results"])[
-            "media"][0]["gif"]["url"]
-
-    return gifUrl
+        return gifUrl

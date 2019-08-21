@@ -1,0 +1,45 @@
+{
+    "sleep": {
+        "title": "$Author(name) went to sleep",
+        "description": "Good night $Author(mention)",
+        "image": {
+            "url": "$Gif(anime sleep)"
+        }
+    },
+    "kiss": {
+        "description": "$Author(mention) kissed $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime kiss)"
+        }
+    },
+    "hug": {
+        "description": "$Author(mention) hugged $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime hug)"
+        }
+    },
+    "eat": {
+        "description": "$Author(mention) is going to eat $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime eat)"
+        }
+    },
+    "cry": {
+        "description": "$Author(mention) is crying",
+        "image": {
+            "url": "$Gif(anime cry)"
+        }
+    },
+    "nuke": {
+        "description": "$Author(mention) nuked $Arguments(all) :D",
+        "image": {
+            "url": "https://cdn.discordapp.com/attachments/333959605883240448/481588083226050571/telechargement.gif"
+        }
+    },
+    "shoot": {
+        "description": "$Author(mention) shot $Arguments(all)",
+        "image": {
+            "url": "$Gif(anime shoot fire)"
+        }
+    }
+}

@@ -1,7 +1,7 @@
 import discord
 import random
 from src.commands import commands
-from src.meta_parser import MetaParser, get_gif
+from src.meta_parser import MetaParser
 from src.snaky_data import SnakyData
 
 client = discord.Client()
@@ -56,7 +56,7 @@ async def on_message(message):
                 parser = MetaParser({
                     "Author": commandData["message"].author,
                     "Arguments": commandData["arguments"].split(' '),
-                    "Gif": get_gif,
+                    "Gif": MetaParser.get_gif,
                     "Mentions": commandData["message"].mentions
                 })
                 parser.parseDict(em)

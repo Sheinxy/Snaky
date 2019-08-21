@@ -1,3 +1,5 @@
 .env
-data
 __pycache__
+data/servers/*
+!/data/servers/public/
+data/servers/public/quotes.json
