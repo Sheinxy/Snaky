@@ -1,0 +1,14 @@
+{
+    "help": "-help (command name) :: Hellow! I'm Snaky, your friendly neighborhood Snake Robot ! Any question to ask me ?",
+    "clear": "-clear <number> :: I can help clearing your junk ! Just tell me how many messages I have to delete and I will do it! UwU",
+    "say": "-say (message) :: I will repeat anything that you say! :3 Like a small parrot! (But I'm a Snake, so please, don't say that I'm a parrot ;W;)",
+    "rule34": "-rule34 (query) :: Ohh, so you want to be nasty uh ? >w>",
+    "emotes": "-emotes :: I can display so many emotes ! You must be lost with all of them, let me refresh your memory to help you! :3",
+    "addEmote": "-addEmote <name> <emote json> :: Wanna add an emote to the server ? ^w^\nMeta values $Name(Arguments) :: Author, Gif, Arguments, Mentions",
+    "delEmote": "-delEmote <name> :: Are you unsatisfied by an emote ? I can delete it for you ! :3",
+    "quote": "-quote <scope> :: Let me give you a quote that one of you added here ! Use -quote server for a server quote, -quote public for a public one ! ^w^",
+    "addQuote": "-addQuote <scope> <quote> :: Wanna add a quote to my quote list? :3 Use -addQuote server to add a server quote, -quote public to add a public one ! ^w^",
+    "prefix": "-prefix :: You don't remember what prefixes are available here ? Don't worry, I will reming you ! ^w^",
+    "addPrefix": "-addPrefix <prefix> :: Do you want to add a new prefix for this server ? ^w^",
+    "delPrefix": "-delPrefix <prefix> :: Do you want to remove a prefix from this server ? ^w^"
+}

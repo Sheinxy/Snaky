@@ -7,15 +7,14 @@ from src.snaky_data import SnakyData
 
 database = SnakyData("data")
 
+
 async def help(commandData):
-    """Hellow! I'm Snaky, your friendly neighborhood Snake Robot!
-    Do you want to know how to use me properly? :3
-    """
     message = commandData["message"]
+    arguments = commandData["arguments"]
 
     em = {
-        "title": ("Hellow! I'm Snaky, your friendly neighborhood Snake Robot!"),
-        "description": "Prefix: -",
+        "title": "Hellow! I'm Snaky, your friendly neighborhood Snake Robot!",
+        "description": "Prefix: -\nUse -help (command) to get the usage of a command ! ^w^",
         "thumbnail": {
             "url": str(commandData["client"].user.avatar_url_as(static_format='png'))
         },
@@ -28,23 +27,30 @@ async def help(commandData):
             "icon_url": "https://www.gravatar.com/avatar/88a7ac03b956d2e189af6b3fa6dc6ebe?s=150"
         },
         "color": 9276813,
-        "fields": []
+        "fields": [
+            {
+                "name": "Commands are: ",
+                "value": "",
+                "inline": True
+            }
+        ]
     }
-    for commandName in commands:
-        doc = '> ' + commands[commandName].__doc__.replace('\n', '\n> ')[:-6]
-        em["fields"].append({
-            "name": '`' + commandName + '`',
-            "value": doc,
-            "inline": True
-        })
+
+    if arguments in commands:
+        docs = database.get_data("help.json", {arguments: "undefined"})
+        doc = ("-%s :: undefined ;W;" %
+               arguments) if not arguments in docs else docs[arguments]
+        em["fields"][0]["name"] = "<> is for mandatory arguments, () is for optional ones."
+        em["fields"][0]["value"] = (
+            "```asciidoc\n===== %s =====\n%s```" % (arguments, doc))
+    else:
+        for command in commands:
+            em["fields"][0]["value"] += '`%s` ' % command
 
     await message.channel.send(embed=discord.Embed.from_dict(em))
 
 
 async def clear(commandData):
-    """I can help clearing your junk!
-    Just tell me how many messages I have to delete and I will do it! UwU
-    """
     message = commandData["message"]
     arguments = commandData["arguments"]
 
@@ -66,17 +72,12 @@ async def clear(commandData):
 
 
 async def say(commandData):
-    """I will repeat anything that you say! :3
-    Like a small parrot! (But I'm a Snake, so please, don't say that I'm a parrot ;W;)
-    """
     message = commandData["message"]
     arguments = commandData["arguments"]
     await message.channel.send(arguments)
 
+
 async def rule34(commandsData):
-    """Ohh, you want to be nasty uh? >w>
-    Want me to call you 'master' as well? owo
-    """
     message = commandsData["message"]
     arguments = commandsData["arguments"]
 
@@ -108,9 +109,6 @@ async def rule34(commandsData):
 
 
 async def emotesHelp(commandData):
-    """I can display so many emotes!
-    You must be lost with all of them, let me refresh your memory to help you! :3
-    """
     message = commandData["message"]
     serverFolder = commandData["serverFolder"]
     userFolder = commandData["userFolder"]
@@ -123,10 +121,10 @@ async def emotesHelp(commandData):
         "color": 9276813,
         "fields": [
             {
-            "name": "Your custom emotes are the following:",
-            "value": "",
-            "inline": False
-        }]
+                "name": "Your custom emotes are the following:",
+                "value": "",
+                "inline": False
+            }]
     }
 
     baseEmotes = database.get_data("servers/public/emotes.json")
@@ -134,11 +132,12 @@ async def emotesHelp(commandData):
     serverEmotes = []
     if serverFolder != userFolder:
         em["fields"].append({
-                "name": "This server's emotes are the following:",
-                "value": "",
-                "inline": False
+            "name": "This server's emotes are the following:",
+            "value": "",
+            "inline": False
         })
-        serverEmotes = database.get_data("%s/emotes.json" % serverFolder, baseEmotes)
+        serverEmotes = database.get_data(
+            "%s/emotes.json" % serverFolder, baseEmotes)
 
     for emote in userEmotes:
         em["fields"][0]["value"] += ("`%s` " % emote)
@@ -149,10 +148,6 @@ async def emotesHelp(commandData):
 
 
 async def addEmote(commandData):
-    """Usage is:
-    -addEmote name {"title": "Something", "description": "Something", "image": {"url": "Something"}}
-    Meta values [$Name(Arguments)] are: Author, Gif, Arguments, Mentions
-    """
     message = commandData["message"]
     arguments = commandData["arguments"]
     name = arguments.split(' ')[0]
@@ -165,21 +160,16 @@ async def addEmote(commandData):
 
 
 async def delEmote(commandData):
-    """Are you unsatisfied by an emote?
-    I can delete it for you! :3
-    """
     serverFolder = commandData["serverFolder"]
     arguments = commandData["arguments"]
     message = commandData["message"]
-    
+
     database.del_data(arguments, "%s/emotes.json" % serverFolder)
 
     await message.channel.send("I've deleted the emote " + arguments + " from this server! :3")
 
+
 async def quote(commandData):
-    """Let me give you a quote that one of you added here!
-    Use -quote server for a server quote, -quote public for a public one
-    """
     message = commandData["message"]
     scope = commandData["arguments"].split(' ')[0]
     if scope != "server" and scope != "public":
@@ -193,9 +183,9 @@ async def quote(commandData):
 
     await message.channel.send(random.choice(quotes))
 
+
 async def addQuote(commandData):
-    """Wanna add a quote to my quote list? :3
-    use -addQuote server to add a server quote, -quote public to add a public one
+    """
     """
     message = commandData["message"]
     arguments = commandData["arguments"]
@@ -212,10 +202,8 @@ async def addQuote(commandData):
 
     await message.channel.send("Added this quote to the %s ! :3c" % scope)
 
+
 async def prefix(commandData):
-    """You don't remember what prefixes are available here ?
-        Don't worry, I will reming you ! ^w^
-    """
     message = commandData["message"]
     serverFolder = commandData["serverFolder"]
 
@@ -233,10 +221,10 @@ async def prefix(commandData):
         "color": 9276813,
         "fields": [
             {
-            "name": "This server's prefixes are the following:",
-            "value": "",
-            "inline": False
-        }]
+                "name": "This server's prefixes are the following:",
+                "value": "",
+                "inline": False
+            }]
     }
 
     for pref in prefixes:
@@ -246,8 +234,6 @@ async def prefix(commandData):
 
 
 async def addPrefix(commandData):
-    """Do you want to add a new prefix for this server ? ^w^
-    """
     message = commandData["message"]
     arguments = commandData["arguments"]
     serverFolder = commandData["serverFolder"]
@@ -256,9 +242,8 @@ async def addPrefix(commandData):
 
     await message.channel.send("Added the prefix %s to the server ! ^w^" % arguments)
 
+
 async def delPrefix(commandData):
-    """Do you want to remove a new prefix for this server ? ^w^
-    """
     message = commandData["message"]
     arguments = commandData["arguments"]
     serverFolder = commandData["serverFolder"]
