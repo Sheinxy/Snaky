@@ -1,6 +1,10 @@
 # Snaky
 Small Discord Emote Snake Bot (Amateur Project)
 
+# BEWARE
+THIS BOT CONTAINS 1 NSFW COMMAND (I really don't like this, at all, but I can't quite resolve myself to removing it, I surely am not strong-minded enough to do it, I am deeply sorry), IT MIGHT BE BETTER NOT TO INVITE IT IF YOU REALLY DON'T WANT ANY RISK (tho, the command has a nsfw-check to make sure that the channel it is used in is marked as nsfw)
+I deeply apologize for the incovenience.
+
 # A little history of Snaky
 >Snaky was create in november 2017 as a discord bot for my friends'server.
 But, it didn't have a lot of uses, until I added the command Rule34 (wait, this is weird to say, IT STARTED AS A BET OKAY, I'M NOT PROUD OF THIS ! ;-;),
