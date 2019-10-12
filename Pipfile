@@ -12,6 +12,7 @@ discord-py = "*"
 dotenv = "*"
 python-dotenv = "*"
 rule34 = "*"
+xmltodict = "*"
 
 [requires]
 python_version = "3.7"

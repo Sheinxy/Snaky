@@ -1,7 +1,6 @@
 import asyncio
 import discord
 import random
-import rule34 as r34
 import json
 from src.snaky_data import SnakyData
 
@@ -75,37 +74,6 @@ async def say(commandData):
     message = commandData["message"]
     arguments = commandData["arguments"]
     await message.channel.send(arguments)
-
-
-async def rule34(commandsData):
-    message = commandsData["message"]
-    arguments = commandsData["arguments"]
-
-    if not message.channel.nsfw:
-        await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
-        return
-
-    Rule34 = r34.Rule34(asyncio.get_event_loop())
-    urls = await Rule34.getImageURLS(arguments)
-    chosen = random.choice(urls)
-
-    em = {
-        "description": ("Rule34 with '%s' as search query for %s" % (arguments, message.author.mention)),
-        "image": {
-            "url": chosen
-        },
-        "author": {
-            "name": str(message.author),
-            "icon_url": str(message.author.avatar_url_as(static_format='png'))
-        },
-        "footer": {
-            "text": "Powered by https://github.com/LordOfPolls/Rule34-API-Wrapper and https://rule34.xxx/",
-            "icon_url": "https://images-ext-2.discordapp.net/external/W_Wi7zqX1K8P60tLneO5e2B_fxpyCHee04VSrNPuhRY/https/rule34.xxx/images/header2.png"
-        },
-        "color": 9276813
-    }
-
-    await message.channel.send(embed=discord.Embed.from_dict(em))
 
 
 async def emotesHelp(commandData):
@@ -256,7 +224,6 @@ commands = {
     'help': help,
     'clear': clear,
     'say': say,
-    'rule34': rule34,
     'emotes': emotesHelp,
     'addEmote': addEmote,
     'delEmote': delEmote,
