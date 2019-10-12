@@ -2,6 +2,7 @@ import os
 import json
 import urllib
 import random
+import xmltodict
 
 
 class MetaParser:
@@ -14,7 +15,8 @@ class MetaParser:
 
         Dict: a dict containing everything (the emote)
         |- Item: a value of a specific field from the Dict
-           |- Statement: a full meta statement that looks like $Name(arg)(arg)(arg)
+           |- Statement: a full meta statement that looks like $Name(arg)(arg)(arg), 
+                        there might be nested arguments $Name($Name(arg))
               |- Meta: the tag of the meta statement, between $ and the first bracket
               |- Arguments: an array of arguments, located between brackets
                  |- Arg 1
@@ -37,19 +39,20 @@ class MetaParser:
     def parseItem(self, item):
         cursor = 0
         previous = ''
-        begin = -1
+        begin = []
         while cursor < len(item):
             current = item[cursor]
             endStatement = (cursor + 1 == len(item) or item[cursor + 1] != '(')
             if current == '$' and previous != '\\':
-                begin = cursor
-            elif current == ')' and endStatement and previous != '\\' and begin != -1:
+                begin.append(cursor)
+            elif current == ')' and endStatement and previous != '\\' and len(begin) != 0:
+                lastBegin = begin[-1]
                 end = cursor
-                metaStatement = item[begin:end] + current
+                metaStatement = item[lastBegin:end] + current
                 result = str(self.parseStatement(metaStatement))
-                cursor = begin + len(result) - 1
+                cursor = lastBegin + len(result) - 1
                 item = item.replace(metaStatement, result)
-                begin = -1
+                begin.pop()
             previous = current
             cursor += 1
         return item
@@ -88,10 +91,34 @@ class MetaParser:
                 result = separator.join(map(str, meta))
             else:
                 result = meta[int(arguments)]
+        elif isinstance(meta, dict):
+            result = meta[arguments]
         else:
             result = getattr(meta, arguments)
 
         return result
+
+    @staticmethod
+    def random_number(max):
+        try:
+            max = int(max)
+        except:
+            max = 100
+
+        return random.randint(0, max)
+
+    @staticmethod
+    def get_api(apiUrl):
+        apiUrl = apiUrl.replace(' ', '%20')
+
+        response = urllib.request.urlopen(apiUrl)
+        contentType = response.info().items()[1][1]
+        responseContent = response.read()
+        if "json" in contentType:
+            return json.loads(responseContent)
+        elif "xml" in contentType:
+            return xmltodict.parse(responseContent)
+        return responseContent
 
     @staticmethod
     def get_gif(searchQuery):

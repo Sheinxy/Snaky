@@ -42,6 +42,9 @@ async def on_message(message):
 
             if commandData["command"] in emotes:
                 em = emotes[commandData["command"]]
+                if "nsfw" in em and em["nsfw"] and not message.channel.nsfw:
+                    await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
+                    return
                 em["color"] = 9276813
                 em["author"] = {
                     "name": str(message.author),
@@ -57,7 +60,9 @@ async def on_message(message):
                     "Author": commandData["message"].author,
                     "Arguments": commandData["arguments"].split(' '),
                     "Gif": MetaParser.get_gif,
-                    "Mentions": commandData["message"].mentions
+                    "Mentions": commandData["message"].mentions,
+                    "Api": MetaParser.get_api,
+                    "Random": MetaParser.random_number
                 })
                 parser.parseDict(em)
                 await message.channel.send(embed=discord.Embed.from_dict(em))
