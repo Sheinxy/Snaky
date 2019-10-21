@@ -6,7 +6,7 @@ import xmltodict
 
 
 class MetaParser:
-    """
+    '''
         The MetaParser is used to parsed Meta Values placed inside the emotes.
         It will thus change something like $Name(args) to the appropriate value.
         The metaTags is a dict containing the tag as keys and their equivalent as value.
@@ -23,66 +23,66 @@ class MetaParser:
                  |- Arg 2
                  |- ... 
         The class is divided in methods accordingly.
-    """
+    '''
 
-    def __init__(self, metaTags):
-        self.metaTags = metaTags
+    def __init__(self, meta_tags):
+        self.meta_tags = meta_tags
 
-    def parseDict(self, items):
+    def parse_dict(self, items):
         for field in items:
             if type(items[field]) is dict:
-                self.parseDict(items[field])
+                self.parse_dict(items[field])
             elif type(items[field]) is str:
                 item = items[field]
-                items[field] = self.parseItem(item)
+                items[field] = self.parse_item(item)
 
-    def parseItem(self, item):
+    def parse_item(self, item):
         cursor = 0
         previous = ''
         begin = []
         while cursor < len(item):
             current = item[cursor]
-            endStatement = (cursor + 1 == len(item) or item[cursor + 1] != '(')
+            end_statement = (cursor + 1 == len(item) or item[cursor + 1] != '(')
             if current == '$' and previous != '\\':
                 begin.append(cursor)
-            elif current == ')' and endStatement and previous != '\\' and len(begin) != 0:
-                lastBegin = begin[-1]
+            elif current == ')' and end_statement and previous != '\\' and len(begin) != 0:
+                last_begin = begin[-1]
                 end = cursor
-                metaStatement = item[lastBegin:end] + current
-                result = str(self.parseStatement(metaStatement))
-                cursor = lastBegin + len(result) - 1
-                item = item.replace(metaStatement, result)
+                meta_statement = item[last_begin:end] + current
+                result = str(self.parse_statement(meta_statement))
+                cursor = last_begin + len(result) - 1
+                item = item.replace(meta_statement, result)
                 begin.pop()
             previous = current
             cursor += 1
         return item
 
-    def parseStatement(self, statement):
+    def parse_statement(self, statement):
         cursor = 1
         previous = '$'
         while statement[cursor] != "(" or previous == '\\':
             previous = statement[cursor]
             cursor += 1
         tag = statement[1:cursor]
-        if not tag in self.metaTags:
+        if not tag in self.meta_tags:
             return statement
         args = []
         cursor += 1
         while cursor < len(statement):
-            beginArg = cursor
+            begin_arg = cursor
             while statement[cursor] != ")" or previous == '\\':
                 previous = statement[cursor]
                 cursor += 1
-            args.append(statement[beginArg:cursor])
+            args.append(statement[begin_arg:cursor])
             cursor += 2
-        meta = self.metaTags[tag]
+        meta = self.meta_tags[tag]
         for arg in args:
             arg = arg.replace("\\(", "(").replace("\\)", ")")
-            meta = self.parseMeta(meta, arg)
+            meta = self.parse_meta(meta, arg)
 
         return meta
 
-    def parseMeta(self, meta, arguments):
+    def parse_meta(self, meta, arguments):
         if callable(meta):
             result = meta(arguments)
         elif type(meta) is list:
@@ -100,6 +100,9 @@ class MetaParser:
 
     @staticmethod
     def random_number(max):
+        '''
+            Returns a random number on [0; max[
+        '''
         try:
             max = int(max)
         except:
@@ -108,36 +111,40 @@ class MetaParser:
         return random.randint(0, max)
 
     @staticmethod
-    def get_api(apiUrl):
-        apiUrl = apiUrl.replace(' ', '%20')
+    def get_api(api_url):
+        '''
+            Allows retrieving content from an API thanks to a given URL
+        '''
+        api_url = api_url.replace(' ', '%20')
 
-        response = urllib.request.urlopen(apiUrl)
-        contentType = response.info().items()[1][1]
-        responseContent = response.read()
-        if "json" in contentType:
-            return json.loads(responseContent)
-        elif "xml" in contentType:
-            return xmltodict.parse(responseContent)
-        return responseContent
+        response = urllib.request.urlopen(api_url)
+        content_type = response.info().items()[1][1]
+        response_content = response.read()
+
+        if "json" in content_type:
+            return json.loads(response_content)
+        elif "xml" in content_type:
+            return xmltodict.parse(response_content)
+        return response_content
 
     @staticmethod
-    def get_gif(searchQuery):
-        """
+    def get_gif(search_query):
+        '''
             Returns a gif from tenor with a given search query.
             This is the function normally used when using the Gif meta tag.
-        """
-        gifUrl = "https://media1.tenor.com/images/4cf708c3935a0755bbe1e9d52ef8378d/tenor.gif?itemid=13009757"
-        apiKey = os.getenv("API_TENOR")
+        '''
+        gif_url = "https://media1.tenor.com/images/4cf708c3935a0755bbe1e9d52ef8378d/tenor.gif?itemid=13009757"
+        api_key = os.getenv("API_TENOR")
         limit = 50
 
-        requestGifs = urllib.request.urlopen(
+        request_gifs = urllib.request.urlopen(
             "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" %
-            (searchQuery.replace(' ', '%20'), apiKey, limit))
+            (search_query.replace(' ', '%20'), api_key, limit))
 
-        requestGifsContent = json.loads(requestGifs.read())
+        request_gifs_content = json.loads(request_gifs.read())
 
-        if requestGifs.code == 200:
-            gifUrl = random.choice(requestGifsContent["results"])[
+        if request_gifs.code == 200:
+            gif_url = random.choice(request_gifs_content["results"])[
                 "media"][0]["gif"]["url"]
 
-        return gifUrl
+        return gif_url
