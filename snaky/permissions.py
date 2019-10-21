@@ -19,7 +19,7 @@ def change_permission(new_permission, command_data):
 
         depricated = "enabled" if new_permission == "disabled" else "disabled"
 
-        role_id = parse_int(arguments)
+        role_id = parse_int(arguments.split(' ')[1])
         role = server.get_role(role_id)
         if role == None:
             return "B-b-but this role doesn't exist ;-;"
