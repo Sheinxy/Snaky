@@ -147,7 +147,7 @@ async def quote(command_data):
     message = command_data["message"]
     scope = command_data["arguments"].split(' ')[0]
     if scope == "server" or scope == "public":
-        server_folder = "public" if scope == "public" else command_data["server_folder"]
+        server_folder = "servers/public" if scope == "public" else command_data["server_folder"]
         quotes = database.get_data("%s/quotes.json" % server_folder, [])
         if len(quotes) == 0:
             await message.channel.send("Sowwy, but there are no quotes here ;w; (Please add some TwT)")
@@ -164,7 +164,7 @@ async def add_quote(command_data):
     if scope == "server" or scope == "public":
         quote = arguments[len(scope + ' '):]
         if quote != "":
-            server_folder = "public" if scope == "public" else command_data["server_folder"]
+            server_folder = "servers/public" if scope == "public" else command_data["server_folder"]
             database.push_data(quote, "%s/quotes.json" % server_folder)
 
             await message.channel.send("Added this quote to the %s ! :3c" % scope)
