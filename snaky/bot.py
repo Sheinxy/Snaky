@@ -1,5 +1,7 @@
 import discord
+import json
 import random
+import xmltodict
 import snaky.permissions as permissions
 from snaky.commands import commands
 from snaky.meta_parser import MetaParser
@@ -35,6 +37,7 @@ async def on_member_remove(member):
             }
         }
         await channel.send(embed=discord.Embed.from_dict(em))
+
 
 @client.event
 async def on_member_join(member):
@@ -74,7 +77,7 @@ async def on_message(message):
 
 def process_message(message):
     '''
-        Processes the received message: 
+        Processes the received message:
         Returns a dict indicating if the message is potentially a command,
         with other parameters that will be used when executing the command.
     '''
@@ -107,6 +110,7 @@ def process_message(message):
         "is_command": False
     }
 
+
 async def check_custom_command(command_data):
     message = command_data["message"]
     user_folder = command_data["user_folder"]
@@ -131,10 +135,13 @@ async def send_custom_command(custom_command, command_data):
     message = command_data["message"]
     parser = MetaParser({
         "Author": command_data["message"].author,
+        "Message": command_data["message"],
         "Arguments": command_data["arguments"].split(' '),
         "Gif": MetaParser.get_gif,
         "Mentions": command_data["message"].mentions,
-        "Api": MetaParser.get_api,
+        "Request": MetaParser.get_response,
+        "Json": json.loads,
+        "Xml": xmltodict.parse,
         "Random": MetaParser.random_number
     })
 
@@ -155,4 +162,11 @@ async def send_custom_command(custom_command, command_data):
             }
 
         parser.parse_dict(custom_command)
+
+        if "before" in custom_command:
+            await send_custom_command(custom_command["before"], command_data)
+
         await message.channel.send(embed=discord.Embed.from_dict(custom_command))
+
+        if "after" in custom_command:
+            await send_custom_command(custom_command["after"], command_data)

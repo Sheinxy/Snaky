@@ -2,8 +2,8 @@
     "help": "-help (name) :: Hellow! I'm Snaky, your friendly neighborhood Snake Robot ! Any question to ask me ?",
     "clear": "-clear <number> :: I can help clearing your junk ! Just tell me how many messages I have to delete and I will do it! UwU",
     "say": "-say (message) :: I will repeat anything that you say! :3 Like a small parrot! (But I'm a Snake, so please, don't say that I'm a parrot ;W;)",
-    "commands": "-commands :: I can display so many commands ! You must be lost with all of them, let me refresh your memory to help you! :3",
-    "define": "-define <name> <command> :: Wanna add a command to the server ? ^w^\nMeta values $Name(Arguments) :: Author, Gif, Arguments, Mentions, Api, Random",
+    "commands": "-commands (name) :: I can display so many commands ! You must be lost with all of them, let me refresh your memory to help you! :3",
+    "define": "-define <name> <command> :: Wanna add a command to the server ? ^w^\nMeta values $Name(Arguments) :: Author, Gif, Arguments, Mentions, Request, Json, Xml, Random",
     "undefine": "-undefine <name> :: Are you unsatisfied by an command ? I can delete it for you ! :3",
     "quote": "-quote <scope> :: Let me give you a quote that one of you added here ! Use -quote server for a server quote, -quote public for a public one ! ^w^",
     "add_quote": "-add_quote <scope> <quote> :: Wanna add a quote to my quote list? :3 Use -addQuote server to add a server quote, -quote public to add a public one ! ^w^",
@@ -12,5 +12,5 @@
     "del_prefix": "-del_prefix <prefix> :: Do you want to remove a prefix from this server ? ^w^",
     "goodbye": "-goodbye <channel_ID | default | none> :: Where do you want me to say when someone joins or leaves ? uwu",
     "disable": "-disable <role_ID> :: Make sure that people with a certain role won't be able to use a certain command òwó",
-    "enable": "-emable <role_ID> :: Make sure that people with a certain role will be able to use a certain command òwó"
+    "enable": "-enable <role_ID> :: Make sure that people with a certain role will be able to use a certain command òwó"
 }
