@@ -79,42 +79,59 @@ async def say(command_data):
 
 async def commands_help(command_data):
     message = command_data["message"]
+    arguments = command_data["arguments"]
     server_folder = command_data["server_folder"]
     user_folder = command_data["user_folder"]
-
     em = {
         "author": {
             "name": str(message.author),
             "icon_url": str(message.author.avatar_url_as(static_format='png'))
         },
         "color": 9276813,
-        "fields": [
+        "fields": [{}]
+    }
+    if arguments == "":
+        em["fields"] = [
             {
                 "name": "Your custom commands are the following:",
                 "value": "",
                 "inline": False
             }]
-    }
 
-    base_commands = database.get_data("servers/public/commands.json")
-    user_commands = database.get_data(
-        "%s/commands.json" % user_folder, base_commands)
-    server_commands = []
-    if server_folder != user_folder:
-        em["fields"].append({
-            "name": "This server's commands are the following:",
-            "value": "",
-            "inline": False
-        })
-        server_commands = database.get_data(
-            "%s/commands.json" % server_folder, base_commands)
+        base_commands = database.get_data("servers/public/commands.json")
+        user_commands = database.get_data(
+            "%s/commands.json" % user_folder, base_commands)
+        server_commands = []
+        if server_folder != user_folder:
+            em["fields"].append({
+                "name": "This server's commands are the following:",
+                "value": "",
+                "inline": False
+            })
+            server_commands = database.get_data(
+                "%s/commands.json" % server_folder, base_commands)
 
-    for command in user_commands:
-        em["fields"][0]["value"] += ("`%s` " % command)
-    for command in server_commands:
-        em["fields"][1]["value"] += ("`%s` " % command)
+        for command in user_commands:
+            em["fields"][0]["value"] += ("`%s` " % command)
+        for command in server_commands:
+            em["fields"][1]["value"] += ("`%s` " % command)
 
-    await message.channel.send(embed=discord.Embed.from_dict(em))
+        await message.channel.send(embed=discord.Embed.from_dict(em))
+    else:
+        base_commands = database.get_data(
+            "servers/public/commands.json")
+        commands = database.get_data(
+            "%s/commands.json" % user_folder, base_commands)
+        server_commands = database.get_data("%s/commands.json" %
+                                            server_folder, base_commands)
+        commands.update(server_commands)
+
+        if arguments in commands:
+            em["fields"][0]["name"] = '`' + arguments + '`'
+            em["fields"][0]["value"] = ("```json\n%s```" % json.dumps(commands[arguments], indent=4))
+            await message.channel.send(embed=discord.Embed.from_dict(em))
+        else:
+            await message.channel.send("I am sorry but I can't find any command with this name :c")
 
 
 async def add_command(command_data):
@@ -200,10 +217,8 @@ async def prefix(command_data):
             em["fields"][0]["value"] += ("`%s` " % pref)
 
         await message.channel.send(embed=discord.Embed.from_dict(em))
-    else:    
+    else:
         await message.channel.send("Am sowwy, but there are no prefixes here TwT")
-        
-    
 
 
 async def add_prefix(command_data):

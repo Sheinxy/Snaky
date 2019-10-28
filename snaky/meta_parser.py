@@ -2,7 +2,7 @@ import os
 import json
 import urllib
 import random
-import xmltodict
+from snaky.commands import commands
 
 
 class MetaParser:
@@ -42,7 +42,8 @@ class MetaParser:
         begin = []
         while cursor < len(item):
             current = item[cursor]
-            end_statement = (cursor + 1 == len(item) or item[cursor + 1] != '(')
+            end_statement = (cursor + 1 == len(item)
+                             or item[cursor + 1] != '(')
             if current == '$' and previous != '\\':
                 begin.append(cursor)
             elif current == ')' and end_statement and previous != '\\' and len(begin) != 0:
@@ -111,21 +112,20 @@ class MetaParser:
         return random.randint(0, max)
 
     @staticmethod
-    def get_api(api_url):
+    def get_response(url):
         '''
-            Allows retrieving content from an API thanks to a given URL
+            Allows retrieving content from the web thanks to a given URL
         '''
-        api_url = api_url.replace(' ', '%20')
+        url = url.replace(' ', '%20')
+        headers = {
+            'User-Agent': 'Snaky/5.3'
+        }
 
-        response = urllib.request.urlopen(api_url)
-        content_type = response.info().items()[1][1]
+        request = urllib.request.Request(url, headers=headers)
+        response = urllib.request.urlopen(request)
         response_content = response.read()
 
-        if "json" in content_type:
-            return json.loads(response_content)
-        elif "xml" in content_type:
-            return xmltodict.parse(response_content)
-        return response_content
+        return response_content.decode("utf-8").replace('(', '\\(').replace(')', '\\)').replace('$', '\\$')
 
     @staticmethod
     def get_gif(search_query):
