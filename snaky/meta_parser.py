@@ -25,18 +25,33 @@ class MetaParser:
                  |- Arg 2
                  |- ... 
         The class is divided in methods accordingly.
+
+        The only default MetaTag is "Tags", which is the dict containing every MetaTag
     '''
 
     def __init__(self, meta_tags):
         self.meta_tags = meta_tags
+        self.meta_tags["Tags"] = self.meta_tags
 
     def parse_dict(self, items):
         for field in items:
             if type(items[field]) is dict:
                 self.parse_dict(items[field])
+            elif type(items[field]) is list:
+                self.parse_list(items[field])
             elif type(items[field]) is str:
                 item = items[field]
                 items[field] = self.parse_item(item)
+
+    def parse_list(self, items):
+        for i in range(len(items)):
+            item = items[i]
+            if type(item) is dict:
+                self.parse_dict(item)
+            elif type(item) is list:
+                self.parse_list(item)
+            elif type(item) is str:
+                items[i] = self.parse_item(item)
 
     def parse_item(self, item):
         cursor = 0
@@ -93,10 +108,11 @@ class MetaParser:
         elif not arguments:
             return meta
         elif type(meta) is list:
+            parsed = parsing.try_parse_int(arguments)
             if arguments == "all":
                 return ' '.join(map(str, meta))
-            else:
-                return meta[int(arguments)]
+            elif parsed[1]:
+                return meta[parsed[0]]
         elif isinstance(meta, dict):
             return meta[arguments]
         return getattr(meta, arguments)
@@ -108,7 +124,7 @@ class MetaParser:
             min_born defaults to 0 and max_born defaults to 1
             Returns a random number on [min_born; max_born]
         '''
-        args = args.split(' ', 1)
+        args = args.split(',', 1)
         min_born = 0
         max_born = 1
         if len(args) > 1:
