@@ -2,6 +2,7 @@ import discord
 import json
 import random
 import xmltodict
+import tools.parsing as parsing
 import snaky.permissions as permissions
 from snaky.commands import commands
 from snaky.meta_parser import MetaParser
@@ -140,23 +141,23 @@ async def check_custom_command(command_data):
                 "Random": MetaParser.random_number,
                 "NoReturn": MetaParser.no_return
             })
-            await send_custom_command(custom_command, command_data, parser)
+            try:
+                await send_custom_command(custom_command, command_data, parser)
+            except Exception as e:
+                error = {
+                    "title": type(e).__name__,
+                    "description": f"```{e}```"
+                }
+                await message.channel.send(embed=discord.Embed.from_dict(error))
 
 
 async def send_custom_command(custom_command, command_data, parser):
     message = command_data["message"]
 
     if type(custom_command) is str:
-        try:
-            custom_command = parser.parse_item(custom_command)
-            if custom_command:
-                await message.channel.send(custom_command)
-        except Exception as e:
-            error = {
-                "title": type(e).__name__,
-                "description": f"```{e}```"
-            }
-            await message.channel.send(embed=discord.Embed.from_dict(error))
+        custom_command = parser.parse_item(custom_command)
+        if custom_command:
+            await message.channel.send(custom_command)
     else:
         custom_command["color"] = 9276813
         custom_command["author"] = {
@@ -171,21 +172,19 @@ async def send_custom_command(custom_command, command_data, parser):
 
         before = custom_command.pop("before", None)
         after = custom_command.pop("after", None)
+        variables = custom_command.pop("vars", {})
 
         if before != None:
             await send_custom_command(before, command_data, parser)
 
-        try:
-            parser.parse_dict(custom_command)
+        parser.parse_dict(variables)
+        for variable in variables:
+            parser.meta_tags[variable] = parsing.try_parse_json(variables[variable])[0]
 
-            if has_content(custom_command):
-                await message.channel.send(embed=discord.Embed.from_dict(custom_command))
-        except Exception as e:
-            error = {
-                "title": type(e).__name__,
-                "description": f"```{e}```"
-            }
-            await message.channel.send(embed=discord.Embed.from_dict(error))
+        parser.parse_dict(custom_command)
+
+        if has_content(custom_command):
+            await message.channel.send(embed=discord.Embed.from_dict(custom_command))
 
         if after != None:
             await send_custom_command(after, command_data, parser)
