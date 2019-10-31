@@ -1,9 +1,10 @@
+import discord
 import os
 import json
 import urllib
 import random
+import xmltodict
 import tools.parsing as parsing
-from snaky.commands import commands
 
 
 class MetaParser:
@@ -179,3 +180,88 @@ class MetaParser:
             Returns an empty string
         '''
         return ""
+
+
+async def execute_command(custom_command, command_data):
+    message = command_data["message"]
+    parser = MetaParser({
+        "Author": message.author,
+        "Message": message,
+        "Arguments": command_data["arguments"].split(' '),
+        "Gif": MetaParser.get_gif,
+        "Mentions": message.mentions,
+        "Request": MetaParser.get_response,
+        "Json": json.loads,
+        "Xml": xmltodict.parse,
+        "Random": MetaParser.random_number,
+        "NoReturn": MetaParser.no_return
+    })
+    try:
+        await send_custom_command(custom_command, command_data, parser)
+    except Exception as e:
+        error = {
+            "title": type(e).__name__,
+            "description": f"```{e}```"
+        }
+        await message.channel.send(embed=discord.Embed.from_dict(error))
+
+
+async def send_custom_command(custom_command, command_data, parser):
+    message = command_data["message"]
+
+    if type(custom_command) is str:
+        custom_command = parser.parse_item(custom_command)
+        if custom_command:
+            await message.channel.send(custom_command)
+    else:
+        custom_command["color"] = 9276813
+        custom_command["author"] = {
+            "name": str(message.author),
+            "icon_url": str(message.author.avatar_url_as(static_format='png'))
+        }
+        if ("image") in custom_command and ("$Gif(") in custom_command["image"]["url"]:
+            custom_command["footer"] = {
+                "text": "Powered by https://tenor.com",
+                "icon_url": "https://tenor.com/assets/img/favicon/favicon-16x16.png"
+            }
+
+        before = custom_command.pop("before", None)
+        after = custom_command.pop("after", None)
+        variables = custom_command.pop("vars", {})
+
+        if before != None:
+            await send_custom_command(before, command_data, parser)
+
+        parse_variables(variables, parser)
+
+        parser.parse_dict(custom_command)
+
+        if has_content(custom_command):
+            await message.channel.send(embed=discord.Embed.from_dict(custom_command))
+
+        if after != None:
+            await send_custom_command(after, command_data, parser)
+
+
+def has_content(command):
+    return ("image" in command
+            or "title" in command
+            or "description" in command
+            or "fields" in command
+            or "thumbnail" in command
+            or "video" in command)
+
+
+def parse_variables(variables, parser):
+    if isinstance(variables, dict):
+        for variable in variables:
+            if isinstance(variables[variable], dict):
+                parser.parse_dict(variables[variable])
+            elif type(variables[variable]) is list:
+                parser.parse_list(variables[variable])
+            else:
+                variables[variable] = parser.parse_item(variables[variable])
+            parser.meta_tags[variable] = variables[variable]
+    elif type(variables) is list:
+        for declaration in variables:
+            parse_variables(declaration, parser)

@@ -3,9 +3,10 @@ import discord
 import random
 import json
 import tools.dictionnary as dictionnary
+import tools.parsing as parsing
 import snaky.permissions as permissions
 from snaky.snaky_data import SnakyData
-from tools.parsing import try_parse_int
+from snaky.custom_commands import execute_command
 
 database = SnakyData("data")
 
@@ -255,17 +256,18 @@ async def goodbye(command_data):
         database.set_data("channel", arguments, path)
         await message.channel.send("I will not send any welcome/goodbye message ;w;")
     else:
-        parsing = try_parse_int(arguments)
+        parsed = parsing.try_parse_int(arguments)
         channel = None
-        if parsing[1]:
-            channel_id = parsing[0]
+        if parsed[1]:
+            channel_id = parsed[0]
             channel = guild.get_channel(channel_id)
         elif arguments == "default":
             channel = guild.system_channel
         elif len(message.channel_mentions) > 0:
             channel = message.channel_mentions[0]
         else:
-            channel = dictionnary.find(guild.channels, "name", arguments, False)
+            channel = dictionnary.find(
+                guild.channels, "name", arguments, False)
         if channel == None:
             channel = message.channel
         database.set_data("channel", channel.id if arguments !=
@@ -283,6 +285,11 @@ async def enable(command_data):
     await message.channel.send(permissions.change_permission("enabled", command_data))
 
 
+async def execute(command_data):
+    custom_command = parsing.try_parse_json(command_data["arguments"])[0]
+    await execute_command(custom_command, command_data)
+
+
 commands = {
     'help': help,
     'clear': clear,
@@ -297,5 +304,6 @@ commands = {
     'del_prefix': del_prefix,
     "goodbye": goodbye,
     "disable": disable,
-    "enable": enable
+    "enable": enable,
+    "execute": execute
 }
