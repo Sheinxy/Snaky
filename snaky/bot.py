@@ -5,7 +5,7 @@ import xmltodict
 import tools.parsing as parsing
 import snaky.permissions as permissions
 from snaky.commands import commands
-from snaky.meta_parser import MetaParser
+from snaky.custom_commands import execute_command
 from snaky.snaky_data import SnakyData
 
 client = discord.Client()
@@ -129,71 +129,4 @@ async def check_custom_command(command_data):
         if "nsfw" in custom_command and custom_command["nsfw"] and not message.channel.nsfw:
             await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
         elif command_data["command"] in guild_commands or message.author.guild_permissions.external_emojis:
-            parser = MetaParser({
-                "Author": command_data["message"].author,
-                "Message": command_data["message"],
-                "Arguments": command_data["arguments"].split(' '),
-                "Gif": MetaParser.get_gif,
-                "Mentions": command_data["message"].mentions,
-                "Request": MetaParser.get_response,
-                "Json": json.loads,
-                "Xml": xmltodict.parse,
-                "Random": MetaParser.random_number,
-                "NoReturn": MetaParser.no_return
-            })
-            try:
-                await send_custom_command(custom_command, command_data, parser)
-            except Exception as e:
-                error = {
-                    "title": type(e).__name__,
-                    "description": f"```{e}```"
-                }
-                await message.channel.send(embed=discord.Embed.from_dict(error))
-
-
-async def send_custom_command(custom_command, command_data, parser):
-    message = command_data["message"]
-
-    if type(custom_command) is str:
-        custom_command = parser.parse_item(custom_command)
-        if custom_command:
-            await message.channel.send(custom_command)
-    else:
-        custom_command["color"] = 9276813
-        custom_command["author"] = {
-            "name": str(message.author),
-            "icon_url": str(message.author.avatar_url_as(static_format='png'))
-        }
-        if ("image") in custom_command and ("$Gif(") in custom_command["image"]["url"]:
-            custom_command["footer"] = {
-                "text": "Powered by https://tenor.com",
-                "icon_url": "https://tenor.com/assets/img/favicon/favicon-16x16.png"
-            }
-
-        before = custom_command.pop("before", None)
-        after = custom_command.pop("after", None)
-        variables = custom_command.pop("vars", {})
-
-        if before != None:
-            await send_custom_command(before, command_data, parser)
-
-        parser.parse_dict(variables)
-        for variable in variables:
-            parser.meta_tags[variable] = parsing.try_parse_json(variables[variable])[0]
-
-        parser.parse_dict(custom_command)
-
-        if has_content(custom_command):
-            await message.channel.send(embed=discord.Embed.from_dict(custom_command))
-
-        if after != None:
-            await send_custom_command(after, command_data, parser)
-
-
-def has_content(command):
-    return ("image" in command
-            or "title" in command
-            or "description" in command
-            or "fields" in command
-            or "thumbnail" in command
-            or "video" in command)
+            await execute_command(custom_command, command_data)
