@@ -14,24 +14,24 @@ default_prefix = '-'
 
 @client.event
 async def on_ready():
-    activity = discord.Game(random.choice(["on %s servers" % len(client.guilds),
+    activity = discord.Game(random.choice([f"on {len(client.guilds)} guilds",
                                            "type - with a command!",
                                            "I'm a robot snake ^w^"]))
     await client.change_presence(activity=activity, status=discord.Status.idle)
-    print("Logged as %s\nId is: %s" % (client.user.name, client.user.id))
+    print(f"Logged as {client.user.name}\nId is: {client.user.id}")
 
 
 @client.event
 async def on_member_remove(member):
-    server = member.guild
+    guild = member.guild
     channel_id = database.get_data(
-        "servers/%s/goodbye.json" % str(server.id), {"channel": "default"})["channel"]
+        f"guilds/{guild.id}/goodbye.json", {"channel": "default"})["channel"]
     if channel_id != "none":
-        channel = server.system_channel if channel_id == "default" else server.get_channel(
+        channel = guild.system_channel if channel_id == "default" else guild.get_channel(
             int(channel_id))
         em = {
-            "title": "%s has left the server ;-;" % str(member),
-            "description": "Good bye %s, may your soul rest in peace" % member.display_name,
+            "title": f"{member} has left the guild ;-;",
+            "description": f"Good bye {member.display_name}, may your soul rest in peace",
             "thumbnail": {
                 "url": str(member.avatar_url_as(static_format='png'))
             }
@@ -41,15 +41,15 @@ async def on_member_remove(member):
 
 @client.event
 async def on_member_join(member):
-    server = member.guild
+    guild = member.guild
     channel_id = database.get_data(
-        "servers/%s/goodbye.json" % str(server.id), {"channel": "default"})["channel"]
+        f"guilds/{guild.id}/goodbye.json", {"channel": "default"})["channel"]
     if channel_id != "none":
-        channel = server.system_channel if channel_id == "default" else server.get_channel(
+        channel = guild.system_channel if channel_id == "default" else guild.get_channel(
             int(channel_id))
         em = {
-            "title": "%s has joined the server :D" % str(member),
-            "description": "Welcome %s, I hope you will like the place ^w^" % member.display_name,
+            "title": f"{member} has joined the guild :D",
+            "description": f"Welcome {member.display_name}, I hope you will like the place ^w^",
             "thumbnail": {
                 "url": str(member.avatar_url_as(static_format='png'))
             }
@@ -64,7 +64,7 @@ async def on_message(message):
         command_data["private"] or permissions.check_permission(command_data))
 
     if permission:
-        activity = discord.Game(random.choice(["on %s servers" % len(client.guilds),
+        activity = discord.Game(random.choice([f"on {len(client.guilds)} guilds",
                                                "type - with a command!",
                                                "I'm a robot snake ^w^"]))
         await client.change_presence(activity=activity, status=discord.Status.idle)
@@ -81,12 +81,12 @@ def process_message(message):
         Returns a dict indicating if the message is potentially a command,
         with other parameters that will be used when executing the command.
     '''
-    server = message.guild if message.guild != None else message.author
-    server_folder = "servers/" + str(server.id)
+    guild = message.guild if message.guild != None else message.author
+    guild_folder = f"guilds/{guild.id}"
     if message.guild == None:
-        server_folder += "_usr"
+        guild_folder += "_usr"
 
-    prefixes = database.get_data(server_folder + "/prefix.json", [])
+    prefixes = database.get_data(guild_folder + "/prefix.json", [])
     prefixes.append(default_prefix)
     prefixes.sort(key=len, reverse=True)
 
@@ -102,9 +102,9 @@ def process_message(message):
                 "command": command,
                 "arguments": arguments,
                 "message": message,
-                "server": server,
-                "server_folder": server_folder,
-                "user_folder": "servers/" + str(message.author.id) + "_usr"
+                "guild": guild,
+                "guild_folder": guild_folder,
+                "user_folder": f"guilds/{message.author.id}_usr"
             }
     return {
         "is_command": False
@@ -114,41 +114,49 @@ def process_message(message):
 async def check_custom_command(command_data):
     message = command_data["message"]
     user_folder = command_data["user_folder"]
-    server_folder = command_data["server_folder"]
+    guild_folder = command_data["guild_folder"]
     base_commands = database.get_data(
-        "servers/public/commands.json")
+        "guilds/public/commands.json")
     commands = database.get_data(
-        "%s/commands.json" % user_folder, base_commands)
-    server_commands = database.get_data("%s/commands.json" %
-                                        server_folder, base_commands)
-    commands.update(server_commands)
+        f"{user_folder}/commands.json", base_commands)
+    guild_commands = database.get_data(
+        f"{guild_folder}/commands.json", base_commands)
+    commands.update(guild_commands)
 
     if command_data["command"] in commands:
         custom_command = commands[command_data["command"]]
         if "nsfw" in custom_command and custom_command["nsfw"] and not message.channel.nsfw:
             await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
-        elif command_data["command"] in server_commands or message.author.guild_permissions.external_emojis:
-            await send_custom_command(custom_command, command_data)
+        elif command_data["command"] in guild_commands or message.author.guild_permissions.external_emojis:
+            parser = MetaParser({
+                "Author": command_data["message"].author,
+                "Message": command_data["message"],
+                "Arguments": command_data["arguments"].split(' '),
+                "Gif": MetaParser.get_gif,
+                "Mentions": command_data["message"].mentions,
+                "Request": MetaParser.get_response,
+                "Json": json.loads,
+                "Xml": xmltodict.parse,
+                "Random": MetaParser.random_number,
+                "NoReturn": MetaParser.no_return
+            })
+            await send_custom_command(custom_command, command_data, parser)
 
 
-async def send_custom_command(custom_command, command_data):
+async def send_custom_command(custom_command, command_data, parser):
     message = command_data["message"]
-    parser = MetaParser({
-        "Author": command_data["message"].author,
-        "Message": command_data["message"],
-        "Arguments": command_data["arguments"].split(' '),
-        "Gif": MetaParser.get_gif,
-        "Mentions": command_data["message"].mentions,
-        "Request": MetaParser.get_response,
-        "Json": json.loads,
-        "Xml": xmltodict.parse,
-        "Random": MetaParser.random_number
-    })
 
     if type(custom_command) is str:
-        custom_command = parser.parse_item(custom_command)
-        if custom_command != "":
-            await message.channel.send(custom_command)
+        try:
+            custom_command = parser.parse_item(custom_command)
+            if custom_command:
+                await message.channel.send(custom_command)
+        except Exception as e:
+            error = {
+                "title": type(e).__name__,
+                "description": f"```{e}```"
+            }
+            await message.channel.send(embed=discord.Embed.from_dict(error))
     else:
         custom_command["color"] = 9276813
         custom_command["author"] = {
@@ -161,12 +169,32 @@ async def send_custom_command(custom_command, command_data):
                 "icon_url": "https://tenor.com/assets/img/favicon/favicon-16x16.png"
             }
 
-        parser.parse_dict(custom_command)
+        before = custom_command.pop("before", None)
+        after = custom_command.pop("after", None)
 
-        if "before" in custom_command:
-            await send_custom_command(custom_command["before"], command_data)
+        if before != None:
+            await send_custom_command(before, command_data, parser)
 
-        await message.channel.send(embed=discord.Embed.from_dict(custom_command))
+        try:
+            parser.parse_dict(custom_command)
 
-        if "after" in custom_command:
-            await send_custom_command(custom_command["after"], command_data)
+            if has_content(custom_command):
+                await message.channel.send(embed=discord.Embed.from_dict(custom_command))
+        except Exception as e:
+            error = {
+                "title": type(e).__name__,
+                "description": f"```{e}```"
+            }
+            await message.channel.send(embed=discord.Embed.from_dict(error))
+
+        if after != None:
+            await send_custom_command(after, command_data, parser)
+
+
+def has_content(command):
+    return ("image" in command
+            or "title" in command
+            or "description" in command
+            or "fields" in command
+            or "thumbnail" in command
+            or "video" in command)

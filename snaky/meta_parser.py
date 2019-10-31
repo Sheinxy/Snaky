@@ -2,6 +2,7 @@ import os
 import json
 import urllib
 import random
+import tools.parsing as parsing
 from snaky.commands import commands
 
 
@@ -9,7 +10,8 @@ class MetaParser:
     '''
         The MetaParser is used to parsed Meta Values placed inside the emotes.
         It will thus change something like $Name(args) to the appropriate value.
-        The metaTags is a dict containing the tag as keys and their equivalent as value.
+        The meta_tags is a dict containing the tag as keys and their equivalent as value.
+        The only default value is Tags which allows to get a tag thanks to its name.
 
         The way that things work is using the following structure:
 
@@ -50,7 +52,9 @@ class MetaParser:
                 last_begin = begin[-1]
                 end = cursor
                 meta_statement = item[last_begin:end] + current
-                result = str(self.parse_statement(meta_statement))
+                result = self.parse_statement(meta_statement)
+                is_json = isinstance(result, dict) or isinstance(result, list)
+                result = json.dumps(result) if is_json else str(result)
                 cursor = last_begin + len(result) - 1
                 item = item.replace(meta_statement, result)
                 begin.pop()
@@ -65,8 +69,6 @@ class MetaParser:
             previous = statement[cursor]
             cursor += 1
         tag = statement[1:cursor]
-        if not tag in self.meta_tags:
-            return statement
         args = []
         cursor += 1
         while cursor < len(statement):
@@ -76,6 +78,8 @@ class MetaParser:
                 cursor += 1
             args.append(statement[begin_arg:cursor])
             cursor += 2
+        if not tag in self.meta_tags:
+            self.meta_tags[tag] = parsing.try_parse_json(args.pop(0))[0]
         meta = self.meta_tags[tag]
         for arg in args:
             arg = arg.replace("\\(", "(").replace("\\)", ")")
@@ -85,31 +89,35 @@ class MetaParser:
 
     def parse_meta(self, meta, arguments):
         if callable(meta):
-            result = meta(arguments)
+            return meta(arguments)
+        elif not arguments:
+            return meta
         elif type(meta) is list:
             if arguments == "all":
-                separator = " "
-                result = separator.join(map(str, meta))
+                return ' '.join(map(str, meta))
             else:
-                result = meta[int(arguments)]
+                return meta[int(arguments)]
         elif isinstance(meta, dict):
-            result = meta[arguments]
-        else:
-            result = getattr(meta, arguments)
-
-        return result
+            return meta[arguments]
+        return getattr(meta, arguments)
 
     @staticmethod
-    def random_number(max):
+    def random_number(args):
         '''
-            Returns a random number on [0; max[
+            Args is either "min_born max_born" or "max_born"
+            min_born defaults to 0 and max_born defaults to 1
+            Returns a random number on [min_born; max_born]
         '''
-        try:
-            max = int(max)
-        except:
-            max = 100
+        args = args.split(' ', 1)
+        min_born = 0
+        max_born = 1
+        if len(args) > 1:
+            min_born = parsing.parse_int(args[0], 0)
+            max_born = parsing.parse_int(args[1], 1)
+        else:
+            max_born = parsing.parse_int(args[0], 1)
 
-        return random.randint(0, max)
+        return random.randint(min_born, max_born)
 
     @staticmethod
     def get_response(url):
@@ -133,13 +141,13 @@ class MetaParser:
             Returns a gif from tenor with a given search query.
             This is the function normally used when using the Gif meta tag.
         '''
+        search_query = search_query.replace(' ', '%20')
         gif_url = "https://media1.tenor.com/images/4cf708c3935a0755bbe1e9d52ef8378d/tenor.gif?itemid=13009757"
         api_key = os.getenv("API_TENOR")
         limit = 50
 
         request_gifs = urllib.request.urlopen(
-            "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" %
-            (search_query.replace(' ', '%20'), api_key, limit))
+            f"https://api.tenor.com/v1/search?q={search_query}&key={api_key}&limit={limit}")
 
         request_gifs_content = json.loads(request_gifs.read())
 
@@ -148,3 +156,10 @@ class MetaParser:
                 "media"][0]["gif"]["url"]
 
         return gif_url
+
+    @staticmethod
+    def no_return(args):
+        '''
+            Returns an empty string
+        '''
+        return ""

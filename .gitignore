@@ -1,5 +1,5 @@
 .env
 __pycache__
-data/servers/*
-!/data/servers/public/
-data/servers/public/quotes.json
+data/guilds/*
+!/data/guilds/public/
+data/guilds/public/quotes.json
