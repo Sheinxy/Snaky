@@ -1,56 +1,65 @@
+import tools.dictionnary as dictionnary
 from snaky.snaky_data import SnakyData
+from tools.parsing import try_parse_int
 
 database = SnakyData("data")
 
 
-def parse_int(value, default=-1):
-    try:
-        return int(value)
-    except:
-        return default
-
-
 def change_permission(new_permission, command_data):
-    if not command_data["private"]:
-        server = command_data["server"]
-        server_folder = command_data["server_folder"]
-        arguments = command_data["arguments"]
-        command = arguments.split(' ')[0]
+    message = command_data["message"]
+    guild = command_data["guild"]
+    guild_folder = command_data["guild_folder"]
+    arguments = command_data["arguments"]
+    command = arguments.split(' ')[0]
 
-        depricated = "enabled" if new_permission == "disabled" else "disabled"
+    if command_data["private"]:
+        return "I cannot change permissions in a private chat ! ;w;"
+    if len(arguments.split(' ')) < 2:
+        return "Please enter the command and the roles >:["
 
-        role_id = parse_int(arguments.split(' ')[1])
-        role = server.get_role(role_id)
-        if role == None:
-            return "B-b-but this role doesn't exist ;-;"
-        else:
-            default_role = server.default_role
-            base = {
-                "disabled": {
-                    "disable": [default_role.id],
-                    "enable": [default_role.id]
-                },
-                "enabled": {}
-            }
-            permissions = database.get_data(
-                server_folder + "/permissions.json", base)
-            if not command in permissions[new_permission]:
-                permissions[new_permission][command] = []
-            permissions[new_permission][command].append(role_id)
-            if command in permissions[depricated] and role_id in permissions[depricated][command]:
-                permissions[depricated][command].remove(role_id)
-            database.replace_data(
-                permissions, server_folder + "/permissions.json")
+    depricated = "enabled" if new_permission == "disabled" else "disabled"
 
-            return "I %s %s for the role %s ^w^" % (new_permission, command, role.name)
+    parsing = try_parse_int(arguments)
+    role = None
+    if parsing[1]:
+        role_id = parsing[0]
+        role = guild.get_role(role_id)
+    elif arguments.split(' ', 1)[1] == "everyone":
+        role = guild.default_role
+    elif len(message.role_mentions) > 0:
+        role = message.role_mentions[0]
+    else:
+        role = dictionnary.find(guild.roles, "name", arguments.split(' ', 1)[1], False)
+    if role == None:
+        return "B-b-but this role doesn't exist ;-;"
+    else:
+        base = {
+            "disabled": {
+                "disable": [guild.default_role.id],
+                "enable": [guild.default_role.id]
+            },
+            "enabled": {}
+        }
+        permissions = database.get_data(
+            guild_folder + "/permissions.json", base)
+        if not command in permissions[new_permission]:
+            permissions[new_permission][command] = []
+        permissions[new_permission][command].append(role.id)
+        if command in permissions[depricated] and role.id in permissions[depricated][command]:
+            permissions[depricated][command].remove(role.id)
+        database.replace_data(
+            permissions, guild_folder + "/permissions.json")
+        mention = role.mention if role != guild.default_role else role
+        return f"I {new_permission} {command} for the role {mention} ^w^"
+
 
 def check_permission(command_data):
     user = command_data["message"].author
-    server = command_data["server"]
-    server_folder = command_data["server_folder"]
+    guild = command_data["guild"]
+    guild_folder = command_data["guild_folder"]
     command = command_data["command"]
 
-    default_role = server.default_role
+    default_role = guild.default_role
     base = {
         "disabled": {
             "disable": [default_role.id],
@@ -58,7 +67,7 @@ def check_permission(command_data):
         },
         "enabled": {}
     }
-    permissions = database.get_data(server_folder + "/permissions.json", base)
+    permissions = database.get_data(guild_folder + "/permissions.json", base)
 
     if user.guild_permissions.administrator or not command in permissions["disabled"]:
         return True

@@ -26,12 +26,12 @@ class SnakyData:
             os.makedirs(os.path.dirname(total_path))
 
 
-    def get_data(self, path="", ifEmpty={}):
+    def get_data(self, path="", if_empty={}):
         '''
             Retrieves data from a .json file.
             The path is added to the root.
             The total path must be a .json file.
-            The ifEmpty value is what will be written and return
+            The if_empty value is what will be written and return
             if the file is empty or doesn't exist.
         '''
         self.create_data(path=path)
@@ -39,7 +39,7 @@ class SnakyData:
             path if path == "" or path[0] == '/'  else self.root + '/' + path
         if not os.path.exists(total_path):
             with open(total_path, 'w') as data_file:
-                json.dump(ifEmpty, data_file, indent=4)
+                json.dump(if_empty, data_file, indent=4)
         with open(total_path) as data_file:
             data = json.load(data_file)
         return data
