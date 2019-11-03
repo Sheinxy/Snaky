@@ -23,6 +23,7 @@ def try_parse_int(value):
     except:
         return value, False
 
+
 def parse_json(value, default={}):
     '''
         Parses a value into a dict/json,
@@ -32,6 +33,7 @@ def parse_json(value, default={}):
         return json.loads(value)
     except:
         return default
+
 
 def try_parse_json(value):
     '''
@@ -43,3 +45,11 @@ def try_parse_json(value):
         return json.loads(value), True
     except:
         return value, False
+
+
+def serialize(dictionnary):
+    '''
+        Safe-serializes a dictionnary into a Json object.
+        Non-serializable values will be parsed into a string.
+    '''
+    return json.loads(json.dumps(dictionnary, default=lambda o: str(o)))
