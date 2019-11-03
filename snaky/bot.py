@@ -62,7 +62,7 @@ async def on_member_join(member):
 async def on_message(message):
     command_data = process_message(message)
     permission = command_data["is_command"] and (
-        command_data["private"] or permissions.check_permission(command_data))
+        command_data["private"] or permissions.check_permission(**command_data))
 
     if permission:
         activity = discord.Game(random.choice([f"on {len(client.guilds)} guilds",
@@ -71,9 +71,9 @@ async def on_message(message):
         await client.change_presence(activity=activity, status=discord.Status.idle)
 
         if command_data["command"] in commands:
-            await commands[command_data["command"]](command_data)
+            await commands[command_data["command"]](**command_data)
         else:
-            await check_custom_command(command_data)
+            await check_custom_command(**command_data)
 
 
 def process_message(message):
@@ -112,10 +112,7 @@ def process_message(message):
     }
 
 
-async def check_custom_command(command_data):
-    message = command_data["message"]
-    user_folder = command_data["user_folder"]
-    guild_folder = command_data["guild_folder"]
+async def check_custom_command(message, arguments, user_folder, guild_folder, command, **kwargs):
     base_commands = database.get_data(
         "guilds/public/commands.json")
     commands = database.get_data(
@@ -124,9 +121,9 @@ async def check_custom_command(command_data):
         f"{guild_folder}/commands.json", base_commands)
     commands.update(guild_commands)
 
-    if command_data["command"] in commands:
-        custom_command = commands[command_data["command"]]
+    if command in commands:
+        custom_command = commands[command]
         if "nsfw" in custom_command and custom_command["nsfw"] and not message.channel.nsfw:
             await message.channel.send("This channel isn't nsfw, I'm not a naughty snake, I won't do anything here! >:[")
-        elif command_data["command"] in guild_commands or message.author.guild_permissions.external_emojis:
-            await execute_command(custom_command, command_data)
+        elif command in guild_commands or message.author.guild_permissions.external_emojis:
+            await execute_command(custom_command, message, arguments, **kwargs)

@@ -1,18 +1,14 @@
-import tools.dictionnary as dictionnary
+import tools.collections as collections
 from snaky.snaky_data import SnakyData
 from tools.parsing import try_parse_int
 
 database = SnakyData("data")
 
 
-def change_permission(new_permission, command_data):
-    message = command_data["message"]
-    guild = command_data["guild"]
-    guild_folder = command_data["guild_folder"]
-    arguments = command_data["arguments"]
+def change_permission(new_permission, message, arguments, guild, guild_folder, private, **kwargs):
     command = arguments.split(' ')[0]
 
-    if command_data["private"]:
+    if private:
         return "I cannot change permissions in a private chat ! ;w;"
     if len(arguments.split(' ')) < 2:
         return "Please enter the command and the roles >:["
@@ -29,7 +25,7 @@ def change_permission(new_permission, command_data):
     elif len(message.role_mentions) > 0:
         role = message.role_mentions[0]
     else:
-        role = dictionnary.find(guild.roles, "name", arguments.split(' ', 1)[1], False)
+        role = collections.find(guild.roles, "name", arguments.split(' ', 1)[1], False)
     if role == None:
         return "B-b-but this role doesn't exist ;-;"
     else:
@@ -53,11 +49,8 @@ def change_permission(new_permission, command_data):
         return f"I {new_permission} {command} for the role {mention} ^w^"
 
 
-def check_permission(command_data):
-    user = command_data["message"].author
-    guild = command_data["guild"]
-    guild_folder = command_data["guild_folder"]
-    command = command_data["command"]
+def check_permission(message, guild, guild_folder, command, **kwargs):
+    user = message.author
 
     default_role = guild.default_role
     base = {
@@ -70,7 +63,7 @@ def check_permission(command_data):
     permissions = database.get_data(guild_folder + "/permissions.json", base)
 
     if user.guild_permissions.administrator or not command in permissions["disabled"]:
-        return True
+        return True and not user.bot
 
     highest_disabling = -1
     for role_id in permissions["disabled"][command]:
