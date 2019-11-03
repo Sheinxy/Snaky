@@ -293,7 +293,7 @@ async def execute_command(custom_command, message, arguments, parser=None, depth
             "Author": message.author,
             "Message": message,
             "Guild": message.guild,
-            "Arguments": arguments.split(' '),
+            "Arguments": [] if not arguments else arguments.split(' '),
             "Gif": MetaParser.get_gif,
             "Mentions": message.mentions,
             "Request": MetaParser.get_response,
