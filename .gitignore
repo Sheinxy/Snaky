@@ -1,5 +1,3 @@
-.env
-__pycache__
-data/guilds/*
-!/data/guilds/public/
-data/guilds/public/quotes.json
+config.json
+data/guilds/
+data/users/
