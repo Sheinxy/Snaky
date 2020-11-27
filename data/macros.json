@@ -1,0 +1,59 @@
+{
+  "sleep": {
+    "embed": {
+      "title": "f'{author.name} went to sleep'",
+      "description": "f'Good night {author.mention}'",
+      "image": {
+        "url": "get_gif('anime sleep')"
+      }
+    }
+  },
+  "kiss": {
+    "embed": {
+      "description": "f'{author.mention} kissed {' '.join(args)}'",
+      "image": {
+        "url": "get_gif('anime kiss')"
+      }
+    }
+  },
+  "hug": {
+    "embed": {
+      "description": "f'{author.mention} hugged {' '.join(args)}'",
+      "image": {
+        "url": "get_gif('anime hug')"
+      }
+    }
+  },
+  "eat": {
+    "embed": {
+      "description": "f'{author.mention} is going to eat {' '.join(args)}'",
+      "image": {
+        "url": "get_gif('anime eat')"
+      }
+    }
+  },
+  "cry": {
+    "embed": {
+      "description": "f'{author.mention} is crying'",
+      "image": {
+        "url": "get_gif('anime cry')"
+      }
+    }
+  },
+  "nuke": {
+    "embed": {
+      "description": "f'{author.mention} nuked {' '.join(args)} :D'",
+      "image": {
+        "url": "'https://cdn.discordapp.com/attachments/333959605883240448/481588083226050571/telechargement.gif'"
+      }
+    }
+  },
+  "shoot": {
+    "embed": {
+      "description": "f'{author.mention} shot {args}'",
+      "image": {
+        "url": "get_gif('anime shoot fire')"
+      }
+    }
+  }
+}
