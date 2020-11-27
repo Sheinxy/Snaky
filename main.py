@@ -1,7 +1,9 @@
-import os
-from snaky.bot import client
-from dotenv import load_dotenv
+import bot
 
 if __name__ == "__main__":
-    load_dotenv()
-    client.run(os.getenv("TOKEN"))
+    bot.setup(
+        "cogs.general",
+        "cogs.macros",
+        "cogs.emojis",
+        "cogs.dev"
+    )
